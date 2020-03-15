@@ -1,0 +1,56 @@
+{% extends 'base.html'%}
+{% block title %}注册{% endblock %}
+{% block content %}
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class="flash">
+                {% for message in messages %}
+                    <div class="alert alert-success" style="text-align: center; color: #f1403c">
+                        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                        <strong>{{ message }}</strong></div>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+  <div class="container">
+
+    <div class="col-lg-4 col-lg-offset-4" style="margin-top: 50px">
+
+        <h1>
+            注册
+            <small>
+                已有帐号
+                <a href="{{ url_for('first.login') }}">登录</a>
+            </small>
+
+        </h1>
+
+        {#    action : 将表单填写的数据提交到那个URL里面进行处理, #}
+        {#    url_for('register')    : 根据视图函数寻找对应的url地址,/register/ #}
+        {#    method =['post', 'get'] , 这种是错误的， 提交数据只能选择一种HTTP请求方法;    #}
+        <form action="{{ url_for('first.register') }}" method="post">
+            <div class="form-group">
+                <label for="exampleInputEmail1">用户名</label>
+
+                {#   name="username"  ====> 将name里面的值username作为key值， 表单里面填写的内容作为value值， 提交到request.form              #}
+                {#   type="text" : 要求填写的是一个字符串;               #}
+                <input name="username" type="text" class="form-control" id="exampleInputEmail1" placeholder="Email">
+            </div>
+            <div class="form-group">
+                <label for="exampleInputPassword1">密码</label>
+                <input name="password" type="password" class="form-control" id="exampleInputPassword1"
+                       placeholder="Password">
+            </div>
+
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox"> 记住密码
+                </label>
+            </div>
+            <button type="submit" class="btn btn-success btn-block">注册</button>
+        </form>
+
+
+    </div>
+  </div>
+{% endblock %}
