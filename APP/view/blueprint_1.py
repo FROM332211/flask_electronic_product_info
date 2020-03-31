@@ -120,3 +120,9 @@ def register():
 def logout():
     session.pop('username', None)
     return redirect(url_for('first.index'))
+
+
+@first.route('/<string:commodity_name>/')
+def commodity_data(commodity_name):
+    print(commodity_name)
+    return render_template('commodity_data.html',commodity_name=commodity_name)
