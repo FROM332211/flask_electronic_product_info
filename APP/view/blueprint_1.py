@@ -5,6 +5,7 @@ from wtforms.validators import DataRequired, Length
 
 from APP.ext import db
 from APP.model import User
+from APP.model import commodity_info
 
 first = Blueprint('first', __name__)
 
@@ -70,13 +71,25 @@ class password_form(FlaskForm):
 
 @first.route('/index/', methods=['GET', 'POST'])
 def index():
-    if request.method == 'GET':
-        form = password_form()
-        # session['user'] = 'root'
-        response = Response(render_template('index.html', form=form, action=url_for('first.index')))
-        return response
-    elif request.method == 'POST':
-        return '成功'
+    commodity = commodity_info()
+    index_list = []
+    for info in commodity.query.limit(3):
+        info = vars(info)
+        info.pop('_sa_instance_state')
+        info.pop('id')
+        info.pop('commodity_type')
+        name = info.pop('name')
+        price = info.pop('price')
+        img_path = info.pop('img_path')
+        for i in info.keys():
+            if info[i]:
+                pass
+            else:
+                info.pop[i]
+        base_info = info
+        info = {'name': name, 'price': price, 'img_path': img_path, 'base_info': base_info}
+        index_list.append(info)
+    return render_template('index.html', index_list=index_list)
 
 
 @first.route('/login/', methods=['GET', 'POST'])
