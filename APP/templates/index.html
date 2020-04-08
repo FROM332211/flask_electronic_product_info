@@ -31,7 +31,7 @@
         <div class="card">
            <table  border="1" frame="void" rules="rows">
                <tr>
-                    <th colspan="1" rowspan="1"><a href="{{ url_for('first.commodity_data', commodity_name=dict.name) }}" style="color: black;">{{ dict.name }}</a></th>
+                    <th colspan="1" rowspan="1"><a href="{{ url_for('first.commodity_data', commodity_type=dict.commodity_type,commodity_name=dict.name) }}" style="color: black;">{{ dict.name }}</a></th>
                     <th colspan="1" rowspan="1"><a href={{ dict.img_path }}><img style="height: 50px; width: 50px;" src={{ dict.img_path }}></a></th>
                </tr>
                {% for k,v in dict.base_info.items() %}
@@ -48,42 +48,6 @@
         </div>
     </div>
     {% endfor %}
-{#                <tr>#}
-{#                    <th colspan="1" rowspan="1"><a href="{{ url_for('first.commodity_data', commodity_name='小米10Pro') }}" style="color: black;">小米10Pro</a></th>#}
-{#                    <th colspan="1" rowspan="1"><a href="../static/index_img/小米10Pro-table.jpg"><img style="height: 50px; width: 50px;" src="../static/index_img/小米10Pro-table.jpg"></a></th>#}
-{#                </tr>#}
-{#                <tr>#}
-{#                    <td>价格</td>#}
-{#                    <td>3999</td>#}
-{#                </tr>#}
-{#    <div class="col-md-4">#}
-{#        <div class="card">#}
-{#            <table  border="1" frame="void" rules="rows">#}
-{#                <tr>#}
-{#                    <th colspan="1" rowspan="1"><a href="{{ url_for('first.commodity_data', commodity_name='华为P40') }}" style="color: black;">华为P40</a></th>#}
-{#                    <th colspan="1" rowspan="1"><a href="../static/index_img/华为P40-table.jpg"><img style="height: 50px; width: 50px;" src="../static/index_img/华为P40-table.jpg"></a></th>#}
-{#                </tr>#}
-{#                <tr>#}
-{#                    <td>价格</td>#}
-{#                    <td>3999</td>#}
-{#                </tr>#}
-{#           </table>#}
-{#        </div>#}
-{#    </div>#}
-{#    <div class="col-md-4">#}
-{#        <div class="card">#}
-{#           <table  border="1" frame="void" rules="rows">#}
-{#                <tr>#}
-{#                    <th colspan="1" rowspan="1"><a href="{{ url_for('first.commodity_data', commodity_name='iPhone11') }}" style="color: black;">iPhone 11</a></th>#}
-{#                    <th colspan="1" rowspan="1"><a href="../static/index_img/iPhone11-table.jpg"><img style="height: 50px; width: 50px;" src="../static/index_img/iPhone11-table.jpg"></a></th>#}
-{#                </tr>#}
-{#                <tr>#}
-{#                    <td>价格</td>#}
-{#                    <td>3999</td>#}
-{#                </tr>#}
-{#           </table>#}
-{#        </div>#}
-{#    </div>#}
 </div></div>
   <br>
 <div>

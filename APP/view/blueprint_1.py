@@ -1,5 +1,6 @@
 from flask import Blueprint, redirect, url_for, abort, request, render_template, Response, session, flash
 from flask_wtf import FlaskForm
+from sqlalchemy import and_
 from wtforms import StringField, SelectField, SubmitField
 from wtforms.validators import DataRequired, Length
 
@@ -36,9 +37,9 @@ def drop_db():
     return '删除成功'
 
 
-@first.route('/get_id/<int:id>')
-def get_id(id):
-    return '%s' % id
+@first.route('/get_id/<string:id>/<string:id1>/')
+def get_id(id, id1):
+    return '{}{}'.format(id, id1)
 
 
 @first.route('/redirect/<int:id>')
@@ -77,7 +78,7 @@ def index():
         info = vars(info)
         info.pop('_sa_instance_state')
         info.pop('id')
-        info.pop('commodity_type')
+        commodity_type = info.pop('commodity_type')
         name = info.pop('name')
         price = info.pop('price')
         img_path = info.pop('img_path')
@@ -87,7 +88,8 @@ def index():
             else:
                 info.pop[i]
         base_info = info
-        info = {'name': name, 'price': price, 'img_path': img_path, 'base_info': base_info}
+        info = {'name': name, 'price': price, 'img_path': img_path, 'commodity_type': commodity_type,
+                'base_info': base_info}
         index_list.append(info)
     return render_template('index.html', index_list=index_list)
 
@@ -135,7 +137,33 @@ def logout():
     return redirect(url_for('first.index'))
 
 
-@first.route('/<string:commodity_name>/')
-def commodity_data(commodity_name):
+@first.route('/<string:commodity_type>/<string:commodity_name>/')
+def commodity_data(commodity_type, commodity_name):
+    commodity = commodity_info()
     print(commodity_name)
-    return render_template('commodity_data.html',commodity_name=commodity_name)
+    print(commodity_type)
+    res = commodity.query.filter(commodity_info.commodity_type == commodity_type, commodity_info.name != commodity_name).all()
+    print(res)
+    info = commodity.query.filter(commodity_info.commodity_type == commodity_type, commodity_info.name == commodity_name).all()
+    select_list = []
+    print(info)
+    info = vars(info[0])
+    print(info)
+    info.pop('_sa_instance_state')
+    info.pop('id')
+    commodity_type = info.pop('commodity_type')
+    name = info.pop('name')
+    price = info.pop('price')
+    img_path = info.pop('img_path')
+    for i in info.keys():
+        if info[i]:
+            pass
+        else:
+            info.pop[i]
+    base_info = info
+    for i in res:
+        select_list.append(i.name)
+    info = {'name': name, 'price': price, 'img_path': img_path, 'commodity_type': commodity_type,
+            'base_info': base_info, 'select_list': select_list}
+    return render_template('commodity_data.html', commodity_type=commodity_type, commodity_name=commodity_name,
+                           info=info)

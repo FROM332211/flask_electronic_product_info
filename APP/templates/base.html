@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>base-{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <link href="https://cdn.bootcss.com/bootstrap-select/1.13.5/css/bootstrap-select.min.css" rel="stylesheet">
   </head>
   <body>
 
@@ -20,36 +21,36 @@
                 <li class="nav-item dropdown">
                      <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown">手机</a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_name='华为') }}">华为</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_name='小米') }}">小米</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_name='OPPO') }}">OPPO</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_name='VIVO') }}">VIVO</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='手机', commodity_name='华为') }}">华为</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='手机', commodity_name='小米') }}">小米</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='手机', commodity_name='OPPO') }}">OPPO</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='手机', commodity_name='VIVO') }}">VIVO</a>
                     </div>
                 </li>
                 <li class="nav-item dropdown">
                      <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown">笔记本电脑</a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_name='联想') }}">联想</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_name='戴尔') }}">戴尔</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_name='苹果') }}">苹果</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_name='惠普') }}">惠普</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_name='华硕') }}">华硕</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_name='华为') }}">华为</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_name='神舟') }}">神舟</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_name='小米') }}">小米</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='笔记本电脑', commodity_name='联想') }}">联想</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='笔记本电脑', commodity_name='戴尔') }}">戴尔</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='笔记本电脑', commodity_name='苹果') }}">苹果</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='笔记本电脑', commodity_name='惠普') }}">惠普</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='笔记本电脑', commodity_name='华硕') }}">华硕</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='笔记本电脑', commodity_name='华为') }}">华为</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='笔记本电脑', commodity_name='神舟') }}">神舟</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='笔记本电脑', commodity_name='小米') }}">小米</a>
                     </div>
                 </li>
                 <li class="nav-item dropdown">
                      <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown">台式电脑配件</a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_name='CPU') }}">CPU</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_name='显卡') }}">显卡</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_name='主板') }}">主板</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_name='内存条') }}">内存条</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_name='固态') }}">固态</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_name='电源') }}">电源</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_name='散热器') }}">散热器</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_name='机箱') }}">机箱</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='台式电脑配件', commodity_name='CPU') }}">CPU</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='台式电脑配件', commodity_name='显卡') }}">显卡</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='台式电脑配件', commodity_name='主板') }}">主板</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='台式电脑配件', commodity_name='内存条') }}">内存条</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='台式电脑配件', commodity_name='固态') }}">固态</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='台式电脑配件', commodity_name='电源') }}">电源</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='台式电脑配件', commodity_name='散热器') }}">散热器</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='台式电脑配件', commodity_name='机箱') }}">机箱</a>
                     </div>
                 </li>
             </ul>
@@ -89,5 +90,6 @@
 
 <!-- 最新的 Bootstrap4 核心 JavaScript 文件 -->
 <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.bootcss.com/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
 </body>
 </html>
