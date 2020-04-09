@@ -30,9 +30,9 @@
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <select class="selectpicker form-control" data-live-search="true" data-size="5" data-header="请选择要比较的商品">
+                        <select class="selectpicker form-control" data-live-search="true" data-size="5" data-header="请选择要比较的商品" onchange="select(this)">
                             {% for i in info.select_list %}
-                            <option >{{ i }}</option>
+                            <option value="{{ i }}">{{ i }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -81,4 +81,13 @@
 		</div>
 	</div>
 </div>
+<script>
+function select(obj) {
+    alert(obj.options[obj.selectedIndex].value);
+}
+var objdbConn = new ActiveXObject("ADODB.Connection");   
+    var strdsn = "Driver={SQL Server};SERVER=localhost;UID=sa;PWD=;DATABASE=yuanWang";   
+    objdbConn.Open(strdsn);   
+    var objrs = objdbConn.Execute("Select * from [User]");
+</script>
 {% endblock %}
