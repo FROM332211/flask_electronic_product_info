@@ -76,18 +76,17 @@ def index():
     index_list = []
     for info in commodity.query.limit(3):
         info = vars(info)
+        print(info)
         info.pop('_sa_instance_state')
         info.pop('id')
         commodity_type = info.pop('commodity_type')
         name = info.pop('name')
         price = info.pop('price')
         img_path = info.pop('img_path')
+        base_info = {}
         for i in info.keys():
-            if info[i]:
-                pass
-            else:
-                info.pop[i]
-        base_info = info
+            if info[i] is not None:
+                base_info[i] = info[i]
         info = {'name': name, 'price': price, 'img_path': img_path, 'commodity_type': commodity_type,
                 'base_info': base_info}
         index_list.append(info)
@@ -142,9 +141,11 @@ def commodity_data(commodity_type, commodity_name):
     commodity = commodity_info()
     print(commodity_name)
     print(commodity_type)
-    res = commodity.query.filter(commodity_info.commodity_type == commodity_type, commodity_info.name != commodity_name).all()
+    res = commodity.query.filter(commodity_info.commodity_type == commodity_type,
+                                 commodity_info.name != commodity_name).all()
     print(res)
-    info = commodity.query.filter(commodity_info.commodity_type == commodity_type, commodity_info.name == commodity_name).all()
+    info = commodity.query.filter(commodity_info.commodity_type == commodity_type,
+                                  commodity_info.name == commodity_name).all()
     select_list = []
     print(info)
     info = vars(info[0])
@@ -167,3 +168,10 @@ def commodity_data(commodity_type, commodity_name):
             'base_info': base_info, 'select_list': select_list}
     return render_template('commodity_data.html', commodity_type=commodity_type, commodity_name=commodity_name,
                            info=info)
+
+
+@first.route('/<string:commodity_type>/<string:commodity_brand>/')
+def commodity_brand(commodity_type, commodity_brand):
+    commodity=commodity_info()
+    res = commodity.query.filter(commodity_info.commodity_type == commodity_type,
+                                 commodity_info.name != commodity_brand).all()

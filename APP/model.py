@@ -18,6 +18,13 @@ class commodity_info(db.Model):
     重量 = db.Column(db.Float, nullable=False)
     price = db.Column(db.Float, nullable=False)
     img_path = db.Column(db.String(30), nullable=False)
+    CPU = db.Column(db.String(30), nullable=False)
+    内存 = db.Column(db.String(30), nullable=False)
+    电池容量 = db.Column(db.String(30), nullable=False)
+    充电 = db.Column(db.String(30), nullable=False)
+    屏幕 = db.Column(db.String(30), nullable=False)
+    摄像头 = db.Column(db.String(30), nullable=False)
+    网络 = db.Column(db.String(30), nullable=False)
 
     def save(self):
         db.session.add(self)
