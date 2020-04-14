@@ -156,12 +156,10 @@ def commodity_data(commodity_type, commodity_name):
     name = info.pop('name')
     price = info.pop('price')
     img_path = info.pop('img_path')
+    base_info = {}
     for i in info.keys():
-        if info[i]:
-            pass
-        else:
-            info.pop[i]
-    base_info = info
+        if info[i] is not None:
+            base_info[i] = info[i]
     for i in res:
         select_list.append(i.name)
     info = {'name': name, 'price': price, 'img_path': img_path, 'commodity_type': commodity_type,

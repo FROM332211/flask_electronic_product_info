@@ -13,13 +13,13 @@ def get_db(db_info):
     host = db_info.get('host') or ''
     port = db_info.get('port') or ''
     db = db_info.get('db') or 'test.db'
-    return '{}+{}://{}{}{}{}/{}'.format(eng, diver, user, password, host, port, db)
+    return '{}{}://{}{}{}{}/{}'.format(eng, diver, user, password, host, port, db)
 
 
 class development(config):
     DEBUG = True
     db_info = {
-        'eng': 'mysql',
+        'eng': 'mysql+',
         'diver': 'pymysql',
         'user': 'root',
         'password': '123456',
@@ -45,5 +45,5 @@ class TestConfig(config):
 
 envs = {
     'development': development,
-    'testing': TestConfig
+    'TestConfig': TestConfig
 }

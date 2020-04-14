@@ -4,6 +4,7 @@ from APP import creat_app
 from flask_script import Manager
 
 env = os.environ.get('FLASK_ENV', 'development')
+print(env)
 app = creat_app(env)
 manager = Manager(app)
 
