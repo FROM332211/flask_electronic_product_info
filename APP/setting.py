@@ -21,10 +21,10 @@ class development(config):
     db_info = {
         'eng': 'mysql+',
         'diver': 'pymysql',
-        'user': 'root',
+        'user': 'root:',
         'password': '123456',
-        'host': '192.168.124.132',
-        'port': '3306',
+        'host': '@192.168.124.132',
+        'port': ':3306',
         'db': 'my_db'
     }
     SQLALCHEMY_DATABASE_URI = get_db(db_info)
