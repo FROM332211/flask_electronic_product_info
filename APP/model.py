@@ -24,3 +24,18 @@ class commodity_base_info(db.Model):
     def save(self):
         db.session.add(self)
         db.session.commit()
+
+
+class commodity_price_info(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    commodity_type = db.Column(db.String(30), nullable=False)
+    commodity_name = db.Column(db.String(30), nullable=False)
+    commodity_brand = db.Column(db.String(30), nullable=False)
+    price = db.Column(db.String(30), nullable=False)
+    price_url = db.Column(db.String, nullable=False)
+    price_title = db.Column(db.String, nullable=False)
+    price_img_path = db.Column(db.String(30), nullable=False)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()

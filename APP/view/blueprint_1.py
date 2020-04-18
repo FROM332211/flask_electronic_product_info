@@ -8,6 +8,7 @@ from APP.ext import db
 from APP.model import User
 from APP.model import commodity_base_info
 from APP.spider.commodity_info_spider import base_infoz
+from APP.spider.tb_search_spider import taobao_spider
 
 first = Blueprint('first', __name__)
 
@@ -180,7 +181,13 @@ def commodity_brand(commodity_type, commodity_brand):
                                  commodity_base_info.name != commodity_brand).all()
 
 
-@first.route('/init/')
+@first.route('/init_base_info/')
 def aa():
     base_infoz()
+    return 'sussce'
+
+
+@first.route('/init_price_info/')
+def taobao():
+    taobao_spider()
     return 'sussce'
