@@ -5,10 +5,11 @@ from wtforms import StringField, SelectField, SubmitField
 from wtforms.validators import DataRequired, Length
 
 from APP.ext import db
-from APP.model import User
+from APP.model import User, commodity_review_info, commodity_price_info
 from APP.model import commodity_base_info
 from APP.spider.commodity_info_spider import base_infoz
 from APP.spider.tb_search_spider import taobao_spider
+from APP.spider.zhihu_spider import zhihu_review_spider
 
 first = Blueprint('first', __name__)
 
@@ -72,33 +73,6 @@ class password_form(FlaskForm):
     submit = SubmitField('提交')
 
 
-@first.route('/index/', methods=['GET', 'POST'])
-def index():
-    commodity = commodity_base_info()
-    index_list = []
-    for info in commodity.query.limit(3):
-        info = vars(info)
-        # print(info)
-        commodity_type = info.pop('commodity_type')
-        name = info.pop('commodity_name')
-        price = info.pop('commodity_base_price')
-        img_path = info.pop('img_path')
-        infos = info.pop('info').replace('>', '').split(';')
-        # print(img_path)
-        base_info = {}
-        for i in infos:
-            i = i.split(':')
-            print(i)
-            if len(i) == 2 and i[0] in ['后置摄像头', 'CPU型号', 'RAM容量']:
-                base_info[i[0]] = i[1].replace(',', ';')
-        info = {'name': name, 'price': price, 'img_path': img_path, 'commodity_type': commodity_type,
-                'base_info': base_info}
-        print(info['img_path'])
-        index_list.append(info)
-
-    return render_template('index.html', index_list=index_list)
-
-
 @first.route('/login/', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
@@ -142,43 +116,167 @@ def logout():
     return redirect(url_for('first.index'))
 
 
+@first.route('/index/', methods=['GET', 'POST'])
+def index():
+    commodity = commodity_base_info()
+    commodity_list = []
+    for info in commodity.query.limit(3):
+        info = vars(info)
+        # print(info)
+        commodity_type = info.pop('commodity_type')
+        name = info.pop('commodity_name')
+        price = info.pop('commodity_base_price')
+        img_path = info.pop('img_path')
+        infos = info.pop('info').replace('>', '').split(';')
+        # print(img_path)
+        base_info = {}
+        for i in infos:
+            i = i.split(':')
+            print(i)
+            if len(i) == 2 and i[0] in ['后置摄像头', 'CPU型号', 'RAM容量']:
+                base_info[i[0]] = i[1].replace(',', ';')
+        info = {'name': name, 'price': price, 'img_path': img_path, 'commodity_type': commodity_type,
+                'base_info': base_info}
+        print(info['img_path'])
+        commodity_list.append(info)
+
+    return render_template('index.html', index_list=commodity_list)
+
+
 @first.route('/<string:commodity_type>/<string:commodity_name>/')
 def commodity_data(commodity_type, commodity_name):
     commodity = commodity_base_info()
-    print(commodity_name)
-    print(commodity_type)
-    res = commodity.query.filter(commodity_base_info.commodity_type == commodity_type,
-                                 commodity_base_info.commodity_name != commodity_name).all()
-    print(res)
+    commodity_review = commodity_review_info()
+    commodity_price = commodity_price_info
+    price_list = []
+    review_list = []
+    # print(commodity_name)
+    # print(commodity_type)
+    res = commodity.query.all()
+    # print(vars(res[0]))
+    phone_list = []
+    for i in res:
+        phone_list.append(i.commodity_name)
+    # print(res)
     info = commodity.query.filter(commodity_base_info.commodity_type == commodity_type,
                                   commodity_base_info.commodity_name == commodity_name).all()
-    select_list = []
-    print(info)
-    info = vars(info[0])
-    print(info)
-    info.pop('_sa_instance_state')
-    info.pop('id')
+    info_list = []
+    # print(info)
+    info = info[0]
+    info = vars(info)
     commodity_type = info.pop('commodity_type')
     name = info.pop('commodity_name')
     price = info.pop('commodity_base_price')
     img_path = info.pop('img_path')
     base_info = {}
-    for i in info.keys():
-        if info[i] is not None:
-            base_info[i] = info[i]
-    for i in res:
-        select_list.append(i.commodity_name)
+    infos = info.pop('info').replace('>', '').split(';')
+    for i in infos:
+        i = i.split(':')
+        # print(i)
+        if len(i) >= 2:
+            info_list.append(i[0])
+        if len(i) >= 2 and i[0] in ['后置摄像头', 'CPU型号', 'RAM容量']:
+            base_info[i[0]] = i[1].replace(',', ';')
     info = {'name': name, 'price': price, 'img_path': img_path, 'commodity_type': commodity_type,
-            'base_info': base_info, 'select_list': select_list}
+            'base_info': base_info, 'phone_list': phone_list, 'info_list': info_list}
+
+    price_infos = commodity_price.query.filter(commodity_price_info.commodity_type == commodity_type,
+                                               commodity_price_info.commodity_name == commodity_name).order_by(
+        -commodity_price_info.price).all()
+    for price_info in price_infos:
+        price_list.append({'price': price_info.price,
+                           'price_title': price_info.price_title,
+                           'price_url': price_info.price_url,
+                           'price_img_path': price_info.price_img_path})
+
+    review_infos = commodity_review.query.filter(commodity_review_info.commodity_type == commodity_type,
+                                                 commodity_review_info.commodity_name == commodity_name).all()
+    for review_info in review_infos:
+        review_list.append({'review_url': review_info.review_url,
+                            'review_title': review_info.review_title.replace('<em>', '').replace('</em>', ''),
+                            'review_img_path': review_info.review_img_path,
+                            'review_excerpt': review_info.review_excerpt.replace('<em>', '').replace('</em>', '')})
     return render_template('commodity_data.html', commodity_type=commodity_type, commodity_name=commodity_name,
-                           info=info)
+                           info=info, price_list=price_list, review_list=review_list)
 
 
-@first.route('/<string:commodity_type>/<string:commodity_brand>/')
+@first.route('/index/<string:commodity_type>/<string:commodity_brand>/')
 def commodity_brand(commodity_type, commodity_brand):
     commodity = commodity_base_info()
     res = commodity.query.filter(commodity_base_info.commodity_type == commodity_type,
-                                 commodity_base_info.name != commodity_brand).all()
+                                 commodity_base_info.commodity_brand == commodity_brand).all()
+    return 'hello'
+
+
+@first.route('/contrast')
+def Contrast():
+    commodity_type = request.args.get('commodity_type')
+    commodity_name = request.args.get('commodity_name')
+    commodity_contrast_name = request.args.get('commodity_contrast_name')
+    contrast_info = request.args.get('contrast_info').split(',')
+    # print(commodity_type)
+    # print(commodity_name)
+    print(contrast_info)
+    # return commodity_type+';'+commodity_name
+    commodity = commodity_base_info()
+    commodity_review = commodity_review_info()
+    commodity_price = commodity_price_info
+    price_list = []
+    review_list = []
+    # print(commodity_name)
+    # print(commodity_type)
+    res = commodity.query.all()
+    # print(vars(res[0]))
+    phone_list = []
+    for i in res:
+        phone_list.append(i.commodity_name)
+    # print(res)
+    info = commodity.query.filter(commodity_base_info.commodity_type == commodity_type,
+                                        commodity_base_info.commodity_name == commodity_name).all()
+    info_list = []
+    print(info)
+    info = info[0]
+    info = vars(info)
+    commodity_type = info.pop('commodity_type')
+    name = info.pop('commodity_name')
+    price = info.pop('commodity_base_price')
+    img_path = info.pop('img_path')
+    base_info = {}
+    infos = info.pop('info').replace('>', '').split(';')
+    for i in infos:
+        i = i.split(':')
+        # print(i)
+        if len(i) >= 2:
+            info_list.append(i[0])
+            text = ''
+            texts = i[1].split(',')[:-2]
+        if len(i) >= 2 and i[0] in contrast_info:
+            # print(type(text))
+            # print(text)
+            for c in texts:
+                text += c+';'
+            base_info[i[0]] = text
+    info = {'name': name, 'price': price, 'img_path': img_path, 'commodity_type': commodity_type,
+            'base_info': base_info, 'phone_list': phone_list, 'info_list': info_list}
+
+    price_infos = commodity_price.query.filter(commodity_price_info.commodity_type == commodity_type,
+                                               commodity_price_info.commodity_name == commodity_name).order_by(
+        -commodity_price_info.price).all()
+    for price_info in price_infos:
+        price_list.append({'price': price_info.price,
+                           'price_title': price_info.price_title,
+                           'price_url': price_info.price_url,
+                           'price_img_path': price_info.price_img_path})
+
+    review_infos = commodity_review.query.filter(commodity_review_info.commodity_type == commodity_type,
+                                                 commodity_review_info.commodity_name == commodity_name).all()
+    for review_info in review_infos:
+        review_list.append({'review_url': review_info.review_url,
+                            'review_title': review_info.review_title.replace('<em>', '').replace('</em>', ''),
+                            'review_img_path': review_info.review_img_path,
+                            'review_excerpt': review_info.review_excerpt.replace('<em>', '').replace('</em>', '')})
+    return render_template('commodity_contrast.html', commodity_type=commodity_type, commodity_name=commodity_name,
+                           info=info, price_list=price_list, review_list=review_list)
 
 
 @first.route('/init_base_info/')
@@ -190,4 +288,10 @@ def aa():
 @first.route('/init_price_info/')
 def taobao():
     taobao_spider()
+    return 'sussce'
+
+
+@first.route('/init_review_info/')
+def zhihu():
+    zhihu_review_spider()
     return 'sussce'

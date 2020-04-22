@@ -39,3 +39,19 @@ class commodity_price_info(db.Model):
     def save(self):
         db.session.add(self)
         db.session.commit()
+
+
+class commodity_review_info(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    commodity_type = db.Column(db.String(30), nullable=False)
+    commodity_name = db.Column(db.String(30), nullable=False)
+    commodity_brand = db.Column(db.String(30), nullable=False)
+    review_url = db.Column(db.String(30), nullable=False)
+    review_title = db.Column(db.String, nullable=False)
+    review_img_path = db.Column(db.String, nullable=False)
+    review_excerpt = db.Column(db.String, nullable=False)
+    # zhihu_x_zse_86 = db.Column(db.String, nullable=False)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()

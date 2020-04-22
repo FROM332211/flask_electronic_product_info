@@ -3,12 +3,17 @@
 {% block content %}
 <div class="container">
 	<div class="row">
-		<div class="col-md-12">
             <br>
 			<div class="row justify-content-center">
                 <div class="col-md-4">
-                    <br>
-                    <br>
+                    <div class="form-group">
+                    <select id= 'info_select' onchange="centent1SelectOnchang(this)" class="selectpicker form-control" data-live-search="true" data-size="5" data-header="请选择要比较的参数" multiple data-max-options="6">
+                            {% for i in info.info_list %}
+                            <option value="{{ i }}">{{ i }}</option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
                     <div class="card">
                         <table  border="1" frame="void" rules="rows">
                         <tr>
@@ -28,66 +33,96 @@
                         </table>
                     </div>
                 </div>
+                <div class="col-md-1">
+                    <button id="date_bt" type="submit" class="btn btn-success">对比</button>
+                </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <select class="selectpicker form-control" data-live-search="true" data-size="5" data-header="请选择要比较的商品" onchange="select(this)">
-                            {% for i in info.select_list %}
-                            <option value="{{ i }}">{{ i }}</option>
+                        <select id = 'phone_select' class="selectpicker form-control" data-live-search="true" data-size="5" data-header="请选择要比较的商品">
+                            {% for i in info.phone_list %}
+                                {% if i == info.name %}
+                                    <option value="{{ i }}" selected="selected">{{ i }}</option>
+                                {% else %}
+                                    <option value="{{ i }}">{{ i }}</option>
+                                {% endif %}
                             {% endfor %}
                         </select>
                     </div>
                     <div class="card">
-                        <img class="card-img-top" alt="Bootstrap Thumbnail Third" src="https://www.layoutit.com/img/sports-q-c-600-200-1.jpg" />
-                        <div class="card-block">
-                            <h5 class="card-title">
-                                Card title
-                            </h5>
-                            <p class="card-text">
-                                Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.
-                            </p>
-                            <p>
-                                <a class="btn btn-primary" href="#">Action</a> <a class="btn" href="#">Action</a>
-                            </p>
-                        </div>
+                        <table  border="1" frame="void" rules="rows">
+                        <tr>
+                            <th colspan="1" rowspan="1">{{ info.name }}</th>
+                            <th colspan="1" rowspan="1"><a href={{ info.img_path }}><img style="height: 50px; width: 50px;" src={{ info.img_path }}></a></th>
+                        </tr>
+                        {% for k,v in info.base_info.items() %}
+                        <tr>
+                            <td>{{ k }}</td>
+                            <td>{{ v }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td>价格</td>
+                            <td>{{ info.price }}</td>
+                        </tr>
+                        </table>
                     </div>
                 </div>
 			</div>
+            <div class="tabbable container" id="tabs-818728">
             <br>
             <br>
             <br>
             <br>
-			<div class="tabbable" id="tabs-9657">
-				<ul class="nav nav-tabs">
-					<li class="nav-item">
-						<a class="nav-link active show" href="#tab1" data-toggle="tab">Section 1</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#tab2" data-toggle="tab">Section 2</a>
-					</li>
-				</ul>
-				<div class="tab-content">
-					<div class="tab-pane active" id="tab1">
-						<p>
-							I'm in Section 1.
-						</p>
-					</div>
-					<div class="tab-pane" id="tab2">
-						<p>
-							Howdy, I'm in Section 2.
-						</p>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active show" href="#tab1" data-toggle="tab">价格信息</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#tab2" data-toggle="tab">网络评测</a>
+                    </li>
+                </ul>
+            <div class="tab-content">
+            <div class="tab-pane active" id="tab1">
+                <p>
+                <ul class="list-group">
+                {% for price in price_list %}
+                    <li class="list-group-item">
+                        <table>
+                            <tr>
+                                <th rowspan="2">
+                                    <a href="{{ price.price_url }}"><img src="{{ price.price_img_path }}" style="width: 100px;height: 100px"></a>
+                                </th>
+                                <td valign="top">
+                                    <a style="color: black;font-weight: bold;" href="{{ price.price_url }}">{{ price.price_title }}</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>价格：{{ price.price }}</td>
+                            </tr>
+                        </table>
+                    </li>
+                {% endfor %}
+                </ul>
+                </p>
+            </div>
+            <div class="tab-pane" id="tab2">
+                <p>
+                {% for review in review_list %}
+                <div class="card w-95">
+                    <div class="card-body">
+                        <a style="color: black;font-weight: bold;" href="{{ review.review_url }}">{{ review.review_title }}</a>
+                        <br>
+                        <small class="text-center">{{ review.review_excerpt }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+                </p>
+            </div>
+            </div>
+            </div>
+            </div>
+            </div>
+            </div>
+        </div>
 </div>
-<script>
-function select(obj) {
-    alert(obj.options[obj.selectedIndex].value);
-}
-var objdbConn = new ActiveXObject("ADODB.Connection");   
-    var strdsn = "Driver={SQL Server};SERVER=localhost;UID=sa;PWD=;DATABASE=yuanWang";   
-    objdbConn.Open(strdsn);   
-    var objrs = objdbConn.Execute("Select * from [User]");
-</script>
 {% endblock %}

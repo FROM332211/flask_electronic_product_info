@@ -21,12 +21,12 @@
                 <li class="nav-item dropdown">
                      <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown">手机</a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='手机', commodity_name='三星') }}">三星</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='手机', commodity_name='苹果') }}">苹果</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='手机', commodity_name='华为') }}">华为</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='手机', commodity_name='小米') }}">小米</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='手机', commodity_name='OPPO') }}">OPPO</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='手机', commodity_name='VIVO') }}">VIVO</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_brand', commodity_type='手机', commodity_brand='三星') }}">三星</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_brand', commodity_type='手机', commodity_brand='苹果') }}">苹果</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_brand', commodity_type='手机', commodity_brand='华为') }}">华为</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_brand', commodity_type='手机', commodity_brand='小米') }}">小米</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_brand', commodity_type='手机', commodity_brand='OPPO') }}">OPPO</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_brand', commodity_type='手机', commodity_brand='VIVO') }}">VIVO</a>
                     </div>
                 </li>
                 <li class="nav-item dropdown">
@@ -90,5 +90,63 @@
 <!-- 最新的 Bootstrap4 核心 JavaScript 文件 -->
 <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <script src="https://cdn.bootcss.com/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
+<script>
+    String.prototype.format = function() {
+ if(arguments.length == 0) return this;
+ var param = arguments[0];
+ var s = this;
+ if(typeof(param) == 'object') {
+  for(var key in param)
+   s = s.replace(new RegExp("\\{" + key + "\\}", "g"), param[key]);
+  return s;
+ } else {
+  for(var i = 0; i < arguments.length; i++)
+   s = s.replace(new RegExp("\\{" + i + "\\}", "g"), arguments[i]);
+  return s;
+ }
+};
+var infos = [];
+function centent1SelectOnchang() {
+var val = "", staffs = [];
+//循环的取出插件选择的元素(通过是否添加了selected类名判断)
+for (var i = 0; i < $("li.selected").length; i++) {
+    val = $("li.selected").eq(i).find(".text").text();
+    if (val != '') {
+        staffs.push(val);
+    }
+}
+infos = staffs;
+{#console.log(staffs)#}
+}
+$('#date_bt').on('click', function () {
+    if (infos.length<1){
+        alert('请选择要对比的参数');
+        return null}
+    commodity_name = (decodeURI(window.location.pathname)).split('/')[2];
+    commodity_type = (decodeURI(window.location.pathname)).split('/')[1]
+    var obj = document.getElementById("phone_select");
+    var phone_index = obj.selectedIndex;
+    phone_name = obj.options[phone_index].text;
+    url = "{{ url_for('first.Contrast') }}";
+    window.location.href = url+"?commodity_type={0}&commodity_name={1}&commodity_contrast_name={2}&contrast_info={3}"
+        .format(commodity_type,commodity_name,phone_name,infos);
+});
+$('#Contrast_bt').on('click', function () {
+    if (infos.length<1){
+        alert('请选择要对比的参数');
+        return null}
+    {#alert(decodeURI(window.location));#}
+    var commodity_name = (decodeURI(window.location)).split(/\?|&|=/)[4];
+    {#alert(commodity_name);#}
+    var commodity_type = (decodeURI(window.location)).split(/\?|&|=/)[2];
+    {#alert(commodity_type);#}
+    var obj = document.getElementById("phone_select");
+    var phone_index = obj.selectedIndex;
+    var phone_name = obj.options[phone_index].text;
+    url = "{{ url_for('first.Contrast') }}";
+    window.location.href = url+"?commodity_type={0}&commodity_name={1}&commodity_contrast_name={2}&contrast_info={3}"
+        .format(commodity_type,commodity_name,phone_name,infos);
+});
+</script>
 </body>
 </html>
