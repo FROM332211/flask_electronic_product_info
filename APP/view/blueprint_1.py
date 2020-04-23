@@ -1,6 +1,8 @@
+import re
+
 from flask import Blueprint, redirect, url_for, abort, request, render_template, Response, session, flash
 from flask_wtf import FlaskForm
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 from wtforms import StringField, SelectField, SubmitField
 from wtforms.validators import DataRequired, Length
 
@@ -14,63 +16,63 @@ from APP.spider.zhihu_spider import zhihu_review_spider
 first = Blueprint('first', __name__)
 
 
-@first.route('/')
-def hello():
-    return 'first blue'
-
-
-@first.route('/create_db')
-def create_db():
-    db.create_all()
-    return '创建成功'
-
-
-@first.route('/adduser')
-def adduser():
-    user = User()
-    user.username = 'Tom'
-    user.password = '123456'
-    user.save()
-    return '添加成功'
-
-
-@first.route('/drop_db')
-def drop_db():
-    db.drop_all()
-    return '删除成功'
-
-
-@first.route('/get_id/<string:id>/<string:id1>/')
-def get_id(id, id1):
-    return '{}{}'.format(id, id1)
-
-
-@first.route('/redirect/<int:id>')
-def redir(id):
-    return redirect(url_for('first.get_id', id=id))
-
-
-@first.route('/error/')
-def go_error():
-    abort(401)
-    return 404
-
-
-@first.errorhandler(401)
-def error(er):
-    return '捕获401'
-
-
-@first.route('/mine/')
-def mine():
-    # return 'Hello,%s' % request.cookies.get('username')
-    return 'Hello,%s' % session['username']
-
-
-class password_form(FlaskForm):
-    user = StringField('账号',
-                       validators=[Length(min=6, max=12, message='用户名长度为6~12位'), DataRequired(message='请输入用户名密码')])
-    submit = SubmitField('提交')
+# @first.route('/')
+# def hello():
+#     return 'first blue'
+#
+#
+# @first.route('/create_db')
+# def create_db():
+#     db.create_all()
+#     return '创建成功'
+#
+#
+# @first.route('/adduser')
+# def adduser():
+#     user = User()
+#     user.username = 'Tom'
+#     user.password = '123456'
+#     user.save()
+#     return '添加成功'
+#
+#
+# @first.route('/drop_db')
+# def drop_db():
+#     db.drop_all()
+#     return '删除成功'
+#
+#
+# @first.route('/get_id/<string:id>/<string:id1>/')
+# def get_id(id, id1):
+#     return '{}{}'.format(id, id1)
+#
+#
+# @first.route('/redirect/<int:id>')
+# def redir(id):
+#     return redirect(url_for('first.get_id', id=id))
+#
+#
+# @first.route('/error/')
+# def go_error():
+#     abort(401)
+#     return 404
+#
+#
+# @first.errorhandler(401)
+# def error(er):
+#     return '捕获401'
+#
+#
+# @first.route('/mine/')
+# def mine():
+#     # return 'Hello,%s' % request.cookies.get('username')
+#     return 'Hello,%s' % session['username']
+#
+#
+# class password_form(FlaskForm):
+#     user = StringField('账号',
+#                        validators=[Length(min=6, max=12, message='用户名长度为6~12位'), DataRequired(message='请输入用户名密码')])
+#     submit = SubmitField('提交')
 
 
 @first.route('/login/', methods=['GET', 'POST'])
@@ -81,8 +83,8 @@ def login():
         user = User()
         username = request.form.get('username')
         password = request.form.get('password')
-        if user.query.filter_by(username=username, password=password).first():
-            session['username'] = request.form.get('username')
+        if len(user.query.filter_by(username=username, password=password).all()) > 0:
+            session['username'] = username
             return redirect(url_for('first.index'))
             # response.set_cookie('username', request.form.get('username'))
         else:
@@ -99,15 +101,23 @@ def register():
         user = User()
         username = request.form.get('username')
         password = request.form.get('password')
-        # print(user.query.filter_by(username=username).first())
-        if user.query.filter_by(username=username).first():
-            flash('账号已存在')
-            return render_template('register.html')
+        email = request.form.get('email')
+        if username and password and email:
+            if len(re.findall(r'^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$', email)) < 1:
+                flash('邮箱格式错误，请重试')
+                return render_template('register.html')
+            if len(user.query.filter_by(username=username).all()) > 0:
+                flash('账号已存在')
+                return render_template('register.html')
+            else:
+                user.username = username
+                user.password = password
+                user.email = email
+                user.save()
+                return redirect(url_for('first.login'))
         else:
-            user.username = username
-            user.password = password
-            user.save()
-            return redirect(url_for('first.login'))
+            flash('账号、密码或邮箱为空')
+            return render_template('register.html')
 
 
 @first.route('/logout/', methods=['GET'])
@@ -116,7 +126,27 @@ def logout():
     return redirect(url_for('first.index'))
 
 
-@first.route('/index/', methods=['GET', 'POST'])
+@first.route('/modify_password/', methods=['GET', 'POST'])
+def modify_password():
+    if request.method == 'GET':
+        return render_template('modify_password.html')
+    else:
+        username = session['username']
+        old_password = request.form.get('old_password')
+        new_password = request.form.get('new_password')
+        user = User()
+        now_user = user.query.filter(User.username == username).all()[0]
+        if now_user.password == old_password:
+            now_user.password = new_password
+            db.session.commit()
+            flash('修改密码成功')
+            return render_template('modify_password.html')
+        else:
+            flash('原密码错误，请重试')
+            return render_template('modify_password.html')
+
+
+@first.route('/index/')
 def index():
     commodity = commodity_base_info()
     commodity_list = []
@@ -130,14 +160,30 @@ def index():
         infos = info.pop('info').replace('>', '').split(';')
         # print(img_path)
         base_info = {}
+        n = 0
         for i in infos:
+            if n > 3:
+                break
+            n += 1
+            # print(i)
             i = i.split(':')
-            print(i)
-            if len(i) == 2 and i[0] in ['后置摄像头', 'CPU型号', 'RAM容量']:
-                base_info[i[0]] = i[1].replace(',', ';')
+            if len(i) < 2:
+                continue
+            # print(i[1])
+            text = ''
+            texts = i[1].split(',')
+            if len(texts) >= 3:
+                texts = texts[:-2]
+            # print(texts)
+            # print(type(text))
+            # print(text)
+            for c in texts:
+                if c != '':
+                    text += c + ';'
+            base_info[i[0]] = text.replace('，;', '')
         info = {'name': name, 'price': price, 'img_path': img_path, 'commodity_type': commodity_type,
                 'base_info': base_info}
-        print(info['img_path'])
+        # print(info['img_path'])
         commodity_list.append(info)
 
     return render_template('index.html', index_list=commodity_list)
@@ -152,7 +198,7 @@ def commodity_data(commodity_type, commodity_name):
     review_list = []
     # print(commodity_name)
     # print(commodity_type)
-    res = commodity.query.all()
+    res = commodity.query.filter(commodity_base_info.commodity_type == commodity_type).all()
     # print(vars(res[0]))
     phone_list = []
     for i in res:
@@ -169,14 +215,35 @@ def commodity_data(commodity_type, commodity_name):
     price = info.pop('commodity_base_price')
     img_path = info.pop('img_path')
     base_info = {}
-    infos = info.pop('info').replace('>', '').split(';')
+    infos = info.pop('info')
+    infos = re.sub(r'(击败.*?)，', '', infos)
+    infos = infos.replace('>', '').split(';')
+    n = 0
     for i in infos:
         i = i.split(':')
+        if len(i) < 2:
+            continue
+        info_list.append(i[0])
+    for i in infos:
+        if n > 3:
+            break
+        n += 1
         # print(i)
-        if len(i) >= 2:
-            info_list.append(i[0])
-        if len(i) >= 2 and i[0] in ['后置摄像头', 'CPU型号', 'RAM容量']:
-            base_info[i[0]] = i[1].replace(',', ';')
+        i = i.split(':')
+        if len(i) < 2:
+            continue
+        # print(i[1])
+        text = ''
+        texts = i[1].split(',')
+        if len(texts) >= 3:
+            texts = texts[:-2]
+        # print(texts)
+        # print(type(text))
+        # print(text)
+        for c in texts:
+            if c != '':
+                text += c + ';'
+        base_info[i[0]] = text.replace('，;', '')
     info = {'name': name, 'price': price, 'img_path': img_path, 'commodity_type': commodity_type,
             'base_info': base_info, 'phone_list': phone_list, 'info_list': info_list}
 
@@ -200,12 +267,68 @@ def commodity_data(commodity_type, commodity_name):
                            info=info, price_list=price_list, review_list=review_list)
 
 
-@first.route('/index/<string:commodity_type>/<string:commodity_brand>/')
+@first.route('/index/<string:commodity_type>/<string:commodity_brand>/', methods=['GET', 'POST'])
 def commodity_brand(commodity_type, commodity_brand):
     commodity = commodity_base_info()
-    res = commodity.query.filter(commodity_base_info.commodity_type == commodity_type,
-                                 commodity_base_info.commodity_brand == commodity_brand).all()
-    return 'hello'
+    path_list = []
+    commodity_list = []
+    if request.method == 'POST':
+        key_word = request.form.get('search_keyword')
+        res = commodity.query.filter(or_(commodity_base_info.commodity_type.contains(key_word),
+                                         commodity_base_info.commodity_brand.contains(key_word),
+                                         commodity_base_info.commodity_name.contains(key_word))).all()
+        path_list.append('搜索')
+        path_list.append(key_word)
+    else:
+        if commodity_brand == '*':
+            res = commodity.query.filter(commodity_base_info.commodity_type == commodity_type).all()
+            path_list.append(commodity_type)
+        else:
+            res = commodity.query.filter(commodity_base_info.commodity_type == commodity_type,
+                                         commodity_base_info.commodity_brand == commodity_brand).all()
+            path_list.append(commodity_type)
+            path_list.append(commodity_brand)
+
+    commodity_sum = len(res)
+
+    for info in res:
+        info = vars(info)
+        # print(info)
+        commodity_type = info.pop('commodity_type')
+        name = info.pop('commodity_name')
+        price = info.pop('commodity_base_price')
+        img_path = info.pop('img_path')
+        infos = info.pop('info').replace('>', '').split(';')
+        # print(img_path)
+        base_info = {}
+        n = 0
+        for i in infos:
+            if n > 3:
+                break
+            n += 1
+            # print(i)
+            i = i.split(':')
+            if len(i) < 2:
+                continue
+            # print(i[1])
+            text = ''
+            texts = i[1].split(',')
+            if len(texts) >= 3:
+                texts = texts[:-2]
+            # print(texts)
+            # print(type(text))
+            # print(text)
+            for c in texts:
+                if c != '':
+                    text += c + ';'
+            base_info[i[0]] = text.replace('，;', '')
+        info = {'name': name, 'price': price, 'img_path': img_path, 'commodity_type': commodity_type,
+                'base_info': base_info}
+        # print(info['img_path'])
+        commodity_list.append(info)
+
+    return render_template('commodity_brand.html', index_list=commodity_list, path=path_list,
+                           commodity_sum=commodity_sum)
 
 
 @first.route('/contrast')
@@ -216,7 +339,7 @@ def Contrast():
     contrast_info = request.args.get('contrast_info').split(',')
     # print(commodity_type)
     # print(commodity_name)
-    print(contrast_info)
+    # print(contrast_info)
     # return commodity_type+';'+commodity_name
     commodity = commodity_base_info()
     commodity_review = commodity_review_info()
@@ -225,39 +348,82 @@ def Contrast():
     review_list = []
     # print(commodity_name)
     # print(commodity_type)
-    res = commodity.query.all()
+    res = commodity.query.filter(commodity_base_info.commodity_type == commodity_type).all()
     # print(vars(res[0]))
     phone_list = []
     for i in res:
         phone_list.append(i.commodity_name)
     # print(res)
     info = commodity.query.filter(commodity_base_info.commodity_type == commodity_type,
-                                        commodity_base_info.commodity_name == commodity_name).all()
+                                  commodity_base_info.commodity_name == commodity_name).all()
     info_list = []
-    print(info)
+    # print(info)
     info = info[0]
     info = vars(info)
-    commodity_type = info.pop('commodity_type')
-    name = info.pop('commodity_name')
-    price = info.pop('commodity_base_price')
-    img_path = info.pop('img_path')
+    info_commodity_type = info.pop('commodity_type')
+    info_name = info.pop('commodity_name')
+    info_price = info.pop('commodity_base_price')
+    info_img_path = info.pop('img_path')
     base_info = {}
-    infos = info.pop('info').replace('>', '').split(';')
+    infos = info.pop('info')
+    infos = re.sub(r'(击败.*?)，', '', infos)
+    infos = infos.replace('>', '').split(';')
     for i in infos:
-        i = i.split(':')
         # print(i)
-        if len(i) >= 2:
-            info_list.append(i[0])
-            text = ''
-            texts = i[1].split(',')[:-2]
-        if len(i) >= 2 and i[0] in contrast_info:
+        i = i.split(':')
+        if len(i) < 2:
+            continue
+        # print(i[1])
+        info_list.append(i[0])
+        text = ''
+        texts = i[1].split(',')
+        if len(texts) >= 3:
+            texts = texts[:-2]
+        # print(texts)
+        if i[0] in contrast_info:
             # print(type(text))
             # print(text)
             for c in texts:
-                text += c+';'
-            base_info[i[0]] = text
-    info = {'name': name, 'price': price, 'img_path': img_path, 'commodity_type': commodity_type,
+                if c != '':
+                    text += c + ';'
+            base_info[i[0]] = text.replace('，;', '')
+    info = {'name': info_name, 'price': info_price, 'img_path': info_img_path, 'commodity_type': info_commodity_type,
             'base_info': base_info, 'phone_list': phone_list, 'info_list': info_list}
+
+    other_info = commodity.query.filter(commodity_base_info.commodity_type == commodity_type,
+                                        commodity_base_info.commodity_name == commodity_contrast_name).all()
+    other_info = other_info[0]
+    other_info_commodity_type = other_info.commodity_type
+    other_info_commodity_name = other_info.commodity_name
+    other_info_info = other_info.info
+    other_info_img_path = other_info.img_path
+    other_info_commodity_base_price = other_info.commodity_base_price
+    other_infos = re.sub(r'(击败.*?)，', '', other_info_info)
+    other_infos = other_infos.replace('>', '').split(';')
+    other_base_info = {}
+    for i in other_infos:
+        # print(i)
+        i = i.split(':')
+        if len(i) < 2:
+            continue
+        # print(i[1])
+        info_list.append(i[0])
+        text = ''
+        texts = i[1].split(',')
+        if len(texts) >= 3:
+            texts = texts[:-2]
+        # print(texts)
+        if i[0] in contrast_info:
+            # print(type(text))
+            # print(text)
+            for c in texts:
+                if c != '':
+                    text += c + ';'
+            other_base_info[i[0]] = text.replace('，;', '')
+    other_info = {
+        'name': other_info_commodity_name, 'price': other_info_commodity_base_price, 'img_path': other_info_img_path,
+        'commodity_type': other_info_commodity_type, 'base_info': other_base_info
+    }
 
     price_infos = commodity_price.query.filter(commodity_price_info.commodity_type == commodity_type,
                                                commodity_price_info.commodity_name == commodity_name).order_by(
@@ -276,7 +442,12 @@ def Contrast():
                             'review_img_path': review_info.review_img_path,
                             'review_excerpt': review_info.review_excerpt.replace('<em>', '').replace('</em>', '')})
     return render_template('commodity_contrast.html', commodity_type=commodity_type, commodity_name=commodity_name,
-                           info=info, price_list=price_list, review_list=review_list)
+                           info=info, price_list=price_list, review_list=review_list, other_info=other_info)
+
+
+# @first.route('/search/', methods=['POST'])
+# def search():
+#     return request.form.get('search_keyword')
 
 
 @first.route('/init_base_info/')

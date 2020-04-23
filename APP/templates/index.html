@@ -30,15 +30,15 @@
     {% for dict in index_list %}
     <div class="col-md-4">
         <div class="card">
-           <table  border="1" frame="void" rules="rows">
+           <table  border="1" frame="void" rules="rows" style="table-layout:fixed;WORD-BREAK:break-all;">
                <tr>
-                    <th colspan="1" rowspan="1"><a href="{{ url_for('first.commodity_data', commodity_type=dict.commodity_type,commodity_name=dict.name) }}" style="color: black;">{{ dict.name }}</a></th>
-                    <th colspan="1" rowspan="1"><a href={{ dict.img_path }}><img style="height: 50px; width: 50px;" src={{ dict.img_path }}></a></th>
+                    <th colspan="1" rowspan="1" width="300"><a href="{{ url_for('first.commodity_data', commodity_type=dict.commodity_type,commodity_name=dict.name) }}" style="color: black;">{{ dict.name }}</a></th>
+                    <th colspan="1" rowspan="1" width="650"><a href={{ dict.img_path }}><img style="height: 50px; width: 60px;" src={{ dict.img_path }}></a></th>
                </tr>
                {% for k,v in dict.base_info.items() %}
                    <tr>
-                       <td>{{ k }}</td>
-                       <td>{{ v }}</td>
+                       <td width="250">{{ k }}</td>
+                       <td width="650">{{ v }}</td>
                    </tr>
                {% endfor %}
                <tr>

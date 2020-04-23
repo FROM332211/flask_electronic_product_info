@@ -15,15 +15,15 @@
 
                     </div>
                     <div class="card">
-                        <table  border="1" frame="void" rules="rows">
+                        <table  border="1" frame="void" rules="rows" style="table-layout:fixed;WORD-BREAK:break-all;">
                         <tr>
-                            <th colspan="1" rowspan="1">{{ info.name }}</th>
-                            <th colspan="1" rowspan="1"><a href={{ info.img_path }}><img style="height: 50px; width: 50px;" src={{ info.img_path }}></a></th>
+                            <th colspan="1" rowspan="1" width="250">{{ info.name }}</th>
+                            <th colspan="1" rowspan="1" width="650"><a href={{ info.img_path }}><img style="height: 50px; width: 60px;" src={{ info.img_path }}></a></th>
                         </tr>
                         {% for k,v in info.base_info.items() %}
                         <tr>
-                            <td>{{ k }}</td>
-                            <td>{{ v }}</td>
+                            <td width="250">{{ k }}</td>
+                            <td width="650">{{ v }}</td>
                         </tr>
                         {% endfor %}
                         <tr>
@@ -40,7 +40,7 @@
                     <div class="form-group">
                         <select id = 'phone_select' class="selectpicker form-control" data-live-search="true" data-size="5" data-header="请选择要比较的商品">
                             {% for i in info.phone_list %}
-                                {% if i == info.name %}
+                                {% if i == other_info.name %}
                                     <option value="{{ i }}" selected="selected">{{ i }}</option>
                                 {% else %}
                                     <option value="{{ i }}">{{ i }}</option>
@@ -49,20 +49,20 @@
                         </select>
                     </div>
                     <div class="card">
-                        <table  border="1" frame="void" rules="rows">
+                        <table  border="1" frame="void" rules="rows" style="table-layout:fixed;WORD-BREAK:break-all;">
                         <tr>
-                            <th colspan="1" rowspan="1">{{ info.name }}</th>
-                            <th colspan="1" rowspan="1"><a href={{ info.img_path }}><img style="height: 50px; width: 50px;" src={{ info.img_path }}></a></th>
+                            <th colspan="1" rowspan="1" width="250"><a href="{{ url_for('first.commodity_data', commodity_type=other_info.commodity_type,commodity_name=other_info.name) }}" style="color: black;">{{ other_info.name }}</a></th>
+                            <th colspan="1" rowspan="1" width="650"><a href={{ other_info.img_path }}><img style="height: 50px; width: 60px;" src={{ other_info.img_path }}></a></th>
                         </tr>
-                        {% for k,v in info.base_info.items() %}
+                        {% for k,v in other_info.base_info.items() %}
                         <tr>
-                            <td>{{ k }}</td>
-                            <td>{{ v }}</td>
+                            <td width="250">{{ k }}</td>
+                            <td width="650">{{ v }}</td>
                         </tr>
                         {% endfor %}
                         <tr>
                             <td>价格</td>
-                            <td>{{ info.price }}</td>
+                            <td>{{ other_info.price }}</td>
                         </tr>
                         </table>
                     </div>

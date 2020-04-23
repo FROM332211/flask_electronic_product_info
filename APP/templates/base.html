@@ -32,29 +32,29 @@
                 <li class="nav-item dropdown">
                      <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown">笔记本电脑</a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='笔记本电脑', commodity_name='联想') }}">联想</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='笔记本电脑', commodity_name='戴尔') }}">戴尔</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='笔记本电脑', commodity_name='苹果') }}">苹果</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='笔记本电脑', commodity_name='惠普') }}">惠普</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='笔记本电脑', commodity_name='华硕') }}">华硕</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='笔记本电脑', commodity_name='华为') }}">华为</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='笔记本电脑', commodity_name='神舟') }}">神舟</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='笔记本电脑', commodity_name='小米') }}">小米</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_brand', commodity_type='笔记本电脑', commodity_brand='联想') }}">联想</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_brand', commodity_type='笔记本电脑', commodity_brand='戴尔') }}">戴尔</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_brand', commodity_type='笔记本电脑', commodity_brand='苹果') }}">苹果</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_brand', commodity_type='笔记本电脑', commodity_brand='惠普') }}">惠普</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_brand', commodity_type='笔记本电脑', commodity_brand='华硕') }}">华硕</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_brand', commodity_type='笔记本电脑', commodity_brand='华为') }}">华为</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_brand', commodity_type='笔记本电脑', commodity_brand='神舟') }}">神舟</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_brand', commodity_type='笔记本电脑', commodity_brand='小米') }}">小米</a>
                     </div>
                 </li>
                 <li class="nav-item dropdown">
                      <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown">台式电脑配件</a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='台式电脑配件', commodity_name='CPU') }}">CPU</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='台式电脑配件', commodity_name='主板') }}">主板</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='台式电脑配件', commodity_name='内存条') }}">内存条</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='台式电脑配件', commodity_name='固态') }}">固态</a>
-                        <a class="dropdown-item" href="{{ url_for('first.commodity_data', commodity_type='台式电脑配件', commodity_name='电源') }}">电源</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_brand', commodity_type='CPU', commodity_brand='*') }}">CPU</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_brand', commodity_type='主板', commodity_brand='*') }}">主板</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_brand', commodity_type='内存', commodity_brand='*') }}">内存</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_brand', commodity_type='固态硬盘', commodity_brand='*') }}">固态硬盘</a>
+                        <a class="dropdown-item" href="{{ url_for('first.commodity_brand', commodity_type='电源', commodity_brand='*') }}">电源</a>
                     </div>
                 </li>
             </ul>
-            <form class="form-inline">
-                <input class="form-control mr-sm-2" type="text" />
+            <form class="form-inline" action="{{ url_for('first.commodity_brand', commodity_type='*', commodity_brand='*') }}" method="post">
+                <input name="search_keyword" class="form-control mr-sm-2" type="text" />
                 <button class="btn btn-primary my-2 my-sm-0" type="submit">
                     搜索
                 </button>
@@ -69,6 +69,7 @@
                             <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown">{{ session.username }}</a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                                 <a class="dropdown-item" href="#">我的收藏</a>
+                                <a class="dropdown-item" href="{{ url_for('first.modify_password') }}">修改密码</a>
                                 <a class="dropdown-item" href="{{ url_for('first.logout') }}">注销</a>
                             </div>
                 </li>

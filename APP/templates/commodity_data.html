@@ -15,15 +15,15 @@
 
                     </div>
                     <div class="card">
-                        <table  border="1" frame="void" rules="rows">
+                        <table  border="1" frame="void" rules="rows" style="table-layout:fixed;WORD-BREAK:break-all;">
                         <tr>
-                            <th colspan="1" rowspan="1">{{ info.name }}</th>
-                            <th colspan="1" rowspan="1"><a href={{ info.img_path }}><img style="height: 50px; width: 50px;" src={{ info.img_path }}></a></th>
+                            <th colspan="1" rowspan="1" width="250">{{ info.name }}</th>
+                            <th colspan="1" rowspan="1" width="650"><a href={{ info.img_path }}><img style="height: 50px; width: 60px;" src={{ info.img_path }}></a></th>
                         </tr>
                         {% for k,v in info.base_info.items() %}
                         <tr>
-                            <td>{{ k }}</td>
-                            <td>{{ v }}</td>
+                            <td width="250">{{ k }}</td>
+                            <td width="650">{{ v }}</td>
                         </tr>
                         {% endfor %}
                         <tr>
@@ -49,15 +49,15 @@
                         </select>
                     </div>
                     <div class="card">
-                        <table  border="1" frame="void" rules="rows">
+                        <table  border="1" frame="void" rules="rows" style="table-layout:fixed;WORD-BREAK:break-all;">
                         <tr>
-                            <th colspan="1" rowspan="1">{{ info.name }}</th>
-                            <th colspan="1" rowspan="1"><a href={{ info.img_path }}><img style="height: 50px; width: 50px;" src={{ info.img_path }}></a></th>
+                            <th colspan="1" rowspan="1" width="250">{{ info.name }}</th>
+                            <th colspan="1" rowspan="1" width="650"><a href={{ info.img_path }}><img style="height: 50px; width: 60px;" src={{ info.img_path }}></a></th>
                         </tr>
                         {% for k,v in info.base_info.items() %}
                         <tr>
-                            <td>{{ k }}</td>
-                            <td>{{ v }}</td>
+                            <td width="250">{{ k }}</td>
+                            <td width="650">{{ v }}</td>
                         </tr>
                         {% endfor %}
                         <tr>

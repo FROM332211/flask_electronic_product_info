@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}brand{% endblock %}
+{% block content %}
+<div class="container">
+    <a href="{{ url_for('first.index') }}" style="font-family:Microsoft YaHei;font-size: 12px;color: black;">首页<a/>
+    {% if path|length > 1 %}
+        {% if path[0] == '搜索' %}
+            > <a style="font-family:Microsoft YaHei;font-size: 12px;color: black;">搜索&nbsp;&nbsp;</a><a>{{ path[1] }}&nbsp;&nbsp;</a>
+        {% else %}
+            > <a style="font-family:Microsoft YaHei;font-size: 12px;color: black;" href="{{ url_for('first.commodity_brand', commodity_type=path[0],commodity_brand='*') }}">{{ path[0] }}</a>
+            > <a style="font-family:Microsoft YaHei;font-size: 12px;color: black;" href="{{ url_for('first.commodity_brand', commodity_type=path[0],commodity_brand=path[1]) }}">{{ path[1] }}</a>
+        {% endif %}
+    {% else %}
+        > <a style="font-family:Microsoft YaHei;font-size: 12px;color: black;" href="{{ url_for('first.commodity_brand', commodity_type=path[0],commodity_brand='*') }}">{{ path[0] }}</a>
+    {% endif %}
+        <a style="font-family:Microsoft YaHei;font-size: 12px;">共找到相关产品{{ commodity_sum }}件</a>
+{#    <ul class="nav nav-list" style="border-top:1px dashed #987cb9;" width="100%" color="#987cb9"><li class="divider"></li></ul>#}
+<hr style="border-top:1px dashed #987cb9;" width="100%" color="#987cb9" size=1>
+<div class="row container">
+    {% for dict in index_list %}
+    <div class="col-md-4">
+        <div class="card">
+           <table  border="1" frame="void" rules="rows" style="table-layout:fixed;WORD-BREAK:break-all;">
+               <tr>
+                    <th colspan="1" rowspan="1" width="300"><a href="{{ url_for('first.commodity_data', commodity_type=dict.commodity_type,commodity_name=dict.name) }}" style="color: black;">{{ dict.name }}</a></th>
+                    <th colspan="1" rowspan="1" width="650"><a href={{ dict.img_path }}><img style="height: 50px; width: 60px;" src={{ dict.img_path }}></a></th>
+               </tr>
+               {% for k,v in dict.base_info.items() %}
+                   <tr>
+                       <td width="250">{{ k }}</td>
+                       <td width="650">{{ v }}</td>
+                   </tr>
+               {% endfor %}
+               <tr>
+                    <td>价格</td>
+                    <td>{{ dict.price }}</td>
+                </tr>
+           </table>
+        </div>
+    <br>
+    <br>
+    <br>
+    </div>
+    {% endfor %}
+</div></div>
+</div>
+{% endblock %}
