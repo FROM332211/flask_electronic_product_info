@@ -6,25 +6,25 @@ class config:
 
 
 def get_db(db_info):
-    eng = db_info.get('eng') or 'sqlite'
+    eng = db_info.get('eng') or ''
     diver = db_info.get('diver') or ''
     user = db_info.get('user') or ''
     password = db_info.get('password') or ''
     host = db_info.get('host') or ''
     port = db_info.get('port') or ''
     db = db_info.get('db') or 'test.db'
-    return '{}{}://{}{}{}{}/{}'.format(eng, diver, user, password, host, port, db)
+    return '{}+{}://{}:{}@{}:{}/{}'.format(eng, diver, user, password, host, port, db)
 
 
 class development(config):
     DEBUG = True
     db_info = {
-        'eng': 'mysql+',
+        'eng': 'mysql',
         'diver': 'pymysql',
-        'user': 'root:',
+        'user': 'root',
         'password': '123456',
-        'host': '@192.168.124.132',
-        'port': ':3306',
+        'host': '192.168.124.132',
+        'port': '3306',
         'db': 'my_db'
     }
     SQLALCHEMY_DATABASE_URI = get_db(db_info)

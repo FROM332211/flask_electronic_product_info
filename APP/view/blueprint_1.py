@@ -7,7 +7,7 @@ from wtforms import StringField, SelectField, SubmitField
 from wtforms.validators import DataRequired, Length
 
 from APP.ext import db
-from APP.model import User, commodity_review_info, commodity_price_info
+from APP.model import User, commodity_review_info, commodity_price_info, user_collection
 from APP.model import commodity_base_info
 from APP.spider.commodity_info_spider import base_infoz
 from APP.spider.tb_search_spider import taobao_spider
@@ -16,9 +16,9 @@ from APP.spider.zhihu_spider import zhihu_review_spider
 first = Blueprint('first', __name__)
 
 
-# @first.route('/')
-# def hello():
-#     return 'first blue'
+@first.route('/')
+def hello():
+    return redirect(url_for('first.index'))
 #
 #
 # @first.route('/create_db')
@@ -193,7 +193,9 @@ def index():
 def commodity_data(commodity_type, commodity_name):
     commodity = commodity_base_info()
     commodity_review = commodity_review_info()
-    commodity_price = commodity_price_info
+    commodity_price = commodity_price_info()
+    user = User()
+    user_collect = user_collection()
     price_list = []
     review_list = []
     # print(commodity_name)
@@ -246,15 +248,51 @@ def commodity_data(commodity_type, commodity_name):
         base_info[i[0]] = text.replace('，;', '')
     info = {'name': name, 'price': price, 'img_path': img_path, 'commodity_type': commodity_type,
             'base_info': base_info, 'phone_list': phone_list, 'info_list': info_list}
-
-    price_infos = commodity_price.query.filter(commodity_price_info.commodity_type == commodity_type,
-                                               commodity_price_info.commodity_name == commodity_name).order_by(
-        -commodity_price_info.price).all()
-    for price_info in price_infos:
-        price_list.append({'price': price_info.price,
-                           'price_title': price_info.price_title,
-                           'price_url': price_info.price_url,
-                           'price_img_path': price_info.price_img_path})
+    # print(session['username'])
+    if 'username' in session:
+        user_id = user.query.filter(User.username == session['username']).all()[0].user_id
+        # print(user_id)
+        # print(vars(user_collection.query.all()[0]))
+        # price_infos = commodity_price.query(commodity_price_info,user_collection).outerjoin(user_collection, commodity_price_info.id == user_collection.commodity_info_id and user_collection.user_id == user_id).filter(commodity_price_info.commodity_type == commodity_type,commodity_price_info.commodity_name == commodity_name).order_by(-commodity_price_info.price).all()
+        price_collection = db.session.query(commodity_price_info, user_collection).outerjoin(user_collection, commodity_price_info.id == user_collection.commodity_info_id).filter(commodity_price_info.commodity_type == commodity_type,commodity_price_info.commodity_name == commodity_name, user_collection.user_id == user_id).order_by(-commodity_price_info.price).all()
+        collection_priceid_list = []
+        for collection in price_collection:
+            collection_priceid_list.append(collection[0].id)
+        price_infos = commodity_price.query.filter(commodity_price_info.commodity_type == commodity_type,
+                                                   commodity_price_info.commodity_name == commodity_name
+                                                   ).order_by(-commodity_price_info.price).all()
+        price_id = 0
+        # print(price_infos)
+        for price_info in price_infos:
+            # print(vars(price_info[0]))
+            # print(vars(price_info[1]))
+            price_id += 1
+            if price_info.id in collection_priceid_list:
+                price_list.append({'price': price_info.price,
+                                   'price_title': price_info.price_title,
+                                   'price_url': price_info.price_url,
+                                   'price_img_path': price_info.price_img_path,
+                                   'price_id': price_info.id,
+                                   'collection_flag': 1})
+            else:
+                price_list.append({'price': price_info.price,
+                                   'price_title': price_info.price_title,
+                                   'price_url': price_info.price_url,
+                                   'price_img_path': price_info.price_img_path,
+                                   'price_id': price_info.id,
+                                   'collection_flag': 0})
+    else:
+        price_infos = commodity_price.query.filter(commodity_price_info.commodity_type == commodity_type,
+                                                   commodity_price_info.commodity_name == commodity_name).order_by(-commodity_price_info.price).all()
+        price_id = 0
+        for price_info in price_infos:
+            price_id += 1
+            price_list.append({'price': price_info.price,
+                               'price_title': price_info.price_title,
+                               'price_url': price_info.price_url,
+                               'price_img_path': price_info.price_img_path,
+                               'price_id': price_info.id,
+                               'collection_flag': 0})
 
     review_infos = commodity_review.query.filter(commodity_review_info.commodity_type == commodity_type,
                                                  commodity_review_info.commodity_name == commodity_name).all()
@@ -343,7 +381,8 @@ def Contrast():
     # return commodity_type+';'+commodity_name
     commodity = commodity_base_info()
     commodity_review = commodity_review_info()
-    commodity_price = commodity_price_info
+    commodity_price = commodity_price_info()
+    user = User()
     price_list = []
     review_list = []
     # print(commodity_name)
@@ -425,14 +464,55 @@ def Contrast():
         'commodity_type': other_info_commodity_type, 'base_info': other_base_info
     }
 
-    price_infos = commodity_price.query.filter(commodity_price_info.commodity_type == commodity_type,
-                                               commodity_price_info.commodity_name == commodity_name).order_by(
-        -commodity_price_info.price).all()
-    for price_info in price_infos:
-        price_list.append({'price': price_info.price,
-                           'price_title': price_info.price_title,
-                           'price_url': price_info.price_url,
-                           'price_img_path': price_info.price_img_path})
+    if 'username' in session:
+        user_id = user.query.filter(User.username == session['username']).all()[0].user_id
+        # print(user_id)
+        # print(vars(user_collection.query.all()[0]))
+        # price_infos = commodity_price.query(commodity_price_info,user_collection).outerjoin(user_collection, commodity_price_info.id == user_collection.commodity_info_id and user_collection.user_id == user_id).filter(commodity_price_info.commodity_type == commodity_type,commodity_price_info.commodity_name == commodity_name).order_by(-commodity_price_info.price).all()
+        price_collection = db.session.query(commodity_price_info, user_collection).outerjoin(user_collection,
+                                                                                             commodity_price_info.id == user_collection.commodity_info_id).filter(
+            commodity_price_info.commodity_type == commodity_type,
+            commodity_price_info.commodity_name == commodity_name, user_collection.user_id == user_id).order_by(
+            -commodity_price_info.price).all()
+        collection_priceid_list = []
+        for collection in price_collection:
+            collection_priceid_list.append(collection[0].id)
+        price_infos = commodity_price.query.filter(commodity_price_info.commodity_type == commodity_type,
+                                                   commodity_price_info.commodity_name == commodity_name
+                                                   ).order_by(-commodity_price_info.price).all()
+        price_id = 0
+        # print(price_infos)
+        for price_info in price_infos:
+            # print(vars(price_info[0]))
+            # print(vars(price_info[1]))
+            price_id += 1
+            if price_info.id in collection_priceid_list:
+                price_list.append({'price': price_info.price,
+                                   'price_title': price_info.price_title,
+                                   'price_url': price_info.price_url,
+                                   'price_img_path': price_info.price_img_path,
+                                   'price_id': price_info.id,
+                                   'collection_flag': 1})
+            else:
+                price_list.append({'price': price_info.price,
+                                   'price_title': price_info.price_title,
+                                   'price_url': price_info.price_url,
+                                   'price_img_path': price_info.price_img_path,
+                                   'price_id': price_info.id,
+                                   'collection_flag': 0})
+    else:
+        price_infos = commodity_price.query.filter(commodity_price_info.commodity_type == commodity_type,
+                                                   commodity_price_info.commodity_name == commodity_name).order_by(
+            -commodity_price_info.price).all()
+        price_id = 0
+        for price_info in price_infos:
+            price_id += 1
+            price_list.append({'price': price_info.price,
+                               'price_title': price_info.price_title,
+                               'price_url': price_info.price_url,
+                               'price_img_path': price_info.price_img_path,
+                               'price_id': price_info.id,
+                               'collection_flag': 0})
 
     review_infos = commodity_review.query.filter(commodity_review_info.commodity_type == commodity_type,
                                                  commodity_review_info.commodity_name == commodity_name).all()
@@ -445,9 +525,26 @@ def Contrast():
                            info=info, price_list=price_list, review_list=review_list, other_info=other_info)
 
 
-# @first.route('/search/', methods=['POST'])
-# def search():
-#     return request.form.get('search_keyword')
+@first.route('/collection/', methods=['GET', 'POST'])
+def search():
+    if 'username' in session:
+        if request.method == 'POST':
+            user_collect = user_collection()
+            user = User()
+            now_user_id = user.query.filter(User.username == session['username']).all()[0].user_id
+            if request.form.get('collection_flag') == '1':
+                user_collect.user_id = now_user_id
+                user_collect.commodity_info_id = request.form.get('price_id')
+                user_collect.save()
+                return '收藏成功'
+            else:
+                now_collcet = user_collect.query.filter(user_collection.user_id == now_user_id, user_collection.commodity_info_id == request.form.get('price_id')).all()[0]
+                user_collect.delete(now_collcet)
+                return '取消收藏成功'
+        else:
+            pass
+    else:
+        return abort(404)
 
 
 @first.route('/init_base_info/')

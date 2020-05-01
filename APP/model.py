@@ -50,8 +50,23 @@ class commodity_review_info(db.Model):
     review_title = db.Column(db.String, nullable=False)
     review_img_path = db.Column(db.String, nullable=False)
     review_excerpt = db.Column(db.String, nullable=False)
+
     # zhihu_x_zse_86 = db.Column(db.String, nullable=False)
 
     def save(self):
         db.session.add(self)
+        db.session.commit()
+
+
+class user_collection(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, nullable=True)
+    commodity_info_id = db.Column(db.Integer, nullable=True)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self, row):
+        db.session.delete(row)
         db.session.commit()

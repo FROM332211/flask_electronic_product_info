@@ -106,6 +106,26 @@
   return s;
  }
 };
+
+function post(URL, PARAMS)
+{
+    var temp = document.createElement("form");
+    temp.action = URL;
+    temp.method = "post";
+    temp.style.display = "none";
+    for (var x in PARAMS)
+    {
+        var opt = document.createElement("textarea");
+        opt.name = x;
+        opt.value = PARAMS[x];
+        // alert(opt.name)
+        temp.appendChild(opt);
+    }
+    document.body.appendChild(temp);
+    temp.submit();
+    return temp;
+}
+
 var infos = [];
 function centent1SelectOnchang() {
 var val = "", staffs = [];
@@ -148,6 +168,22 @@ $('#Contrast_bt').on('click', function () {
     window.location.href = url+"?commodity_type={0}&commodity_name={1}&commodity_contrast_name={2}&contrast_info={3}"
         .format(commodity_type,commodity_name,phone_name,infos);
 });
+function colect(id)
+{
+    x=document.getElementById(id);
+    if (x.innerText == '已收藏'){
+        $.post('/collection/',{price_id: id, collection_flag: 0},function (data) {
+            alert(data);
+            x.innerText = '收藏';
+        }).fail(function(){alert('请登陆')});
+    }else {
+        $.post('/collection/',{price_id: id, collection_flag: 1},function (data) {
+            alert(data);
+            x.innerText = '已收藏';
+        }).fail(function(){alert('请登陆')});
+    }
+
+}
 </script>
 </body>
 </html>

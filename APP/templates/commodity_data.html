@@ -98,6 +98,11 @@
                             </tr>
                             <tr>
                                 <td>价格：{{ price.price }}</td>
+                                {% if price.collection_flag == 0 %}
+                                <td><button type="button" class="btn btn-primary" data-loading-text="Loading..." onclick="colect('{{ price.price_id }}')" id="{{ price.price_id }}">收藏</button></td>
+                                {% else %}
+                                <td><button type="button" class="btn btn-primary" data-loading-text="Loading..." onclick="colect('{{ price.price_id }}')" id="{{ price.price_id }}">已收藏</button></td>
+                                {% endif %}
                             </tr>
                         </table>
                     </li>
