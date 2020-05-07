@@ -526,11 +526,11 @@ def Contrast():
 
 
 @first.route('/collection/', methods=['GET', 'POST'])
-def search():
+def collection():
     if 'username' in session:
+        user_collect = user_collection()
+        user = User()
         if request.method == 'POST':
-            user_collect = user_collection()
-            user = User()
             now_user_id = user.query.filter(User.username == session['username']).all()[0].user_id
             if request.form.get('collection_flag') == '1':
                 user_collect.user_id = now_user_id
@@ -542,7 +542,20 @@ def search():
                 user_collect.delete(now_collcet)
                 return '取消收藏成功'
         else:
-            pass
+            price_info = commodity_price_info()
+            now_user_id = user.query.filter(User.username == session['username']).all()[0].user_id
+            collection_id_list = [i.commodity_info_id for i in user_collect.query.filter(user_collection.user_id == now_user_id).all()]
+            collection_sum = len(collection_id_list)
+            price_infos = price_info.query.filter(commodity_price_info.id.in_(collection_id_list)).all()
+            price_list = []
+            for i in price_infos:
+                price_list.append({'price': i.price,
+                                   'price_title': i.price_title,
+                                   'price_url': i.price_url,
+                                   'price_img_path': i.price_img_path,
+                                   'price_id': i.id,
+                                   'collection_flag': 1})
+            return render_template('my_collction.html', collection_sum=collection_sum, price_list=price_list)
     else:
         return abort(404)
 
