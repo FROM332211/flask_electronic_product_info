@@ -12,6 +12,7 @@ from APP.model import commodity_base_info
 from APP.spider.commodity_info_spider import base_infoz
 from APP.spider.tb_search_spider import taobao_spider
 from APP.spider.zhihu_spider import zhihu_review_spider
+from APP.spider.histiory_price_spider import  price_spider
 
 first = Blueprint('first', __name__)
 
@@ -19,6 +20,8 @@ first = Blueprint('first', __name__)
 @first.route('/')
 def hello():
     return redirect(url_for('first.index'))
+
+
 #
 #
 # @first.route('/create_db')
@@ -254,7 +257,11 @@ def commodity_data(commodity_type, commodity_name):
         # print(user_id)
         # print(vars(user_collection.query.all()[0]))
         # price_infos = commodity_price.query(commodity_price_info,user_collection).outerjoin(user_collection, commodity_price_info.id == user_collection.commodity_info_id and user_collection.user_id == user_id).filter(commodity_price_info.commodity_type == commodity_type,commodity_price_info.commodity_name == commodity_name).order_by(-commodity_price_info.price).all()
-        price_collection = db.session.query(commodity_price_info, user_collection).outerjoin(user_collection, commodity_price_info.id == user_collection.commodity_info_id).filter(commodity_price_info.commodity_type == commodity_type,commodity_price_info.commodity_name == commodity_name, user_collection.user_id == user_id).order_by(-commodity_price_info.price).all()
+        price_collection = db.session.query(commodity_price_info, user_collection).outerjoin(user_collection,
+                                                                                             commodity_price_info.id == user_collection.commodity_info_id).filter(
+            commodity_price_info.commodity_type == commodity_type,
+            commodity_price_info.commodity_name == commodity_name, user_collection.user_id == user_id).order_by(
+            -commodity_price_info.price).all()
         collection_priceid_list = []
         for collection in price_collection:
             collection_priceid_list.append(collection[0].id)
@@ -283,7 +290,8 @@ def commodity_data(commodity_type, commodity_name):
                                    'collection_flag': 0})
     else:
         price_infos = commodity_price.query.filter(commodity_price_info.commodity_type == commodity_type,
-                                                   commodity_price_info.commodity_name == commodity_name).order_by(-commodity_price_info.price).all()
+                                                   commodity_price_info.commodity_name == commodity_name).order_by(
+            -commodity_price_info.price).all()
         price_id = 0
         for price_info in price_infos:
             price_id += 1
@@ -538,13 +546,16 @@ def collection():
                 user_collect.save()
                 return '收藏成功'
             else:
-                now_collcet = user_collect.query.filter(user_collection.user_id == now_user_id, user_collection.commodity_info_id == request.form.get('price_id')).all()[0]
+                now_collcet = user_collect.query.filter(user_collection.user_id == now_user_id,
+                                                        user_collection.commodity_info_id == request.form.get(
+                                                            'price_id')).all()[0]
                 user_collect.delete(now_collcet)
                 return '取消收藏成功'
         else:
             price_info = commodity_price_info()
             now_user_id = user.query.filter(User.username == session['username']).all()[0].user_id
-            collection_id_list = [i.commodity_info_id for i in user_collect.query.filter(user_collection.user_id == now_user_id).all()]
+            collection_id_list = [i.commodity_info_id for i in
+                                  user_collect.query.filter(user_collection.user_id == now_user_id).all()]
             collection_sum = len(collection_id_list)
             price_infos = price_info.query.filter(commodity_price_info.id.in_(collection_id_list)).all()
             price_list = []
@@ -558,6 +569,11 @@ def collection():
             return render_template('my_collction.html', collection_sum=collection_sum, price_list=price_list)
     else:
         return abort(404)
+
+
+@first.route('/price_trend/')
+def price_trend():
+    return render_template('price_trend.html')
 
 
 @first.route('/init_base_info/')
@@ -575,4 +591,10 @@ def taobao():
 @first.route('/init_review_info/')
 def zhihu():
     zhihu_review_spider()
+    return 'sussce'
+
+
+@first.route('/history_spider/')
+def history_spider():
+    price_spider.start()
     return 'sussce'

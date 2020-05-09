@@ -70,3 +70,10 @@ class user_collection(db.Model):
     def delete(self, row):
         db.session.delete(row)
         db.session.commit()
+
+
+class commodity_history_price(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    commodity_price_id = db.Column(db.Integer, nullable=True)
+    insert_time = db.Column(db.DATETIME, nullable=True)
+    price = db.Column(db.String(30), nullable=False)
