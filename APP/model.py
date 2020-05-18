@@ -77,3 +77,7 @@ class commodity_history_price(db.Model):
     commodity_price_id = db.Column(db.Integer, nullable=True)
     insert_time = db.Column(db.DATETIME, nullable=True)
     price = db.Column(db.String(30), nullable=False)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
