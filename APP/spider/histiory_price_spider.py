@@ -6,7 +6,11 @@ import time
 import random
 import threading
 import queue
+import datetime
+
 from APP.model import commodity_price_info, commodity_history_price
+
+Lock = threading.Lock()
 
 
 class price_spider(object):
@@ -78,47 +82,67 @@ class price_spider(object):
                #           '%23E1hvOpvUvbpvUvCkvvvvvjiPn2cU0jrERsLZQj1VPmPwtjEVPFSW6ji2PsSp1jnviQhvCvvv9U8EvpvVmvvC9j3Euphvmvvv92Dj2VezKphv8vvvvvCvpvvvvvmmM6Cvmh%2BvvvWvphvW9pvvvQCvpvs9vvv2vhCv2RvEvpCWvvY5vvakfw1l%2Bb8rwkM6D7z9d3ODNKClYE7rVB61D7zUaXgqb64B9WmQ%2BulsbSoxfJmKHkx%2Fgjc6kCh7EcqvaNondXIaWXxrzj7JRQhCvvOvCvvvphvPvpvhvv2MMsyCvvpvvvvv; l=eBT3B-QRqHT_ujVbBO5Cnurza779uIdbzsPzaNbMiInGa14FZHR2KNQc715podtjMtfUBeKzEdARfREM7k4LRFZOYKQhKXIpBz99-; isg=BH19BA2l_yYb_1gcdodQndlWjNl3GrFskcKmxj_DLVRidp-oBmlVPMJsIKgwdskk',
                }
 
+    price_id_list = []
+    re_price_id_list = []
+    price = []
+
     def start(self):
-        price_infos = commodity_price_info()
-        price_id_list = [[i.id, i.price_url, i.price] for i in price_infos.query.all()]
         # print(price_id_list[0])
         # print('https:' + price_id_list[0][1])
         # print(requests.get('https:' + price_id_list[0][1], headers=self.headers).text)
         # print('https:' + price_id_list[0][1])
-        while len(price_id_list) > 0:
-            s = []
-            print(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())+':'+'还剩'+'：' + str(len(price_id_list)))
-            for n in range(len(price_id_list)):
-                result = self.spider(price_id_list[n][1], price_id_list[n][2])
-                # print(result)
-                if result in ['未抓取到数据', '获取数据错误']:
-                    s.append(price_id_list[n])
-                else:
-                    self.save(price_id_list[n][0], result)
-                # print('------------------------------------------')
-                time.sleep(random.randint(0, 5))
-            price_id_list = copy.deepcopy(s)
-            time.sleep(60)
+        price_infos = commodity_price_info()
+        self.price_id_list = [[i.id, i.price_url, i.price] for i in price_infos.query.all()]
+        while len(self.price_id_list) > 0:
+            threads = []
+            for i in range(8):
+                t = threading.Thread(target=self.spider)
+                threads.append(t)
+            print('=================')
+            # print(threads)
+            for i in threads:
+                i.start()
+            for i in threads:
+                i.join()
+            self.save_all()
+            self.price = []
+            print('=========================================')
+            print('长度' + str(len(self.re_price_id_list)))
+            self.price_id_list = copy.deepcopy(self.re_price_id_list)
+            self.re_price_id_list = []
+            time.sleep(random.randint(60,180))
 
-    def spider(self, url, baseprice):
-        self.headers['user-agent'] = self.get_user_agent()
-        try:
-            result = requests.get('https:' + url, headers=self.headers, timeout=5)  # 获取商品详情页
-        except:
-            return '获取数据错误'
-        price_info = re.findall(r'TShop.Setup\(([\S\s]*?)\);', result.text)  # 提取出价格配置信息
-        # print(price_info[0])
-        if len(price_info) == 0:
-            price_info = re.findall(r'skuMap[ ]*?:[\w\W]*?{([\s\S]*?)\);', result.text)
-        if len(price_info) > 0:
-            prices = re.findall(r'"price":"(.*?)"', price_info[0])
-            price = baseprice
-            for i in prices:
-                if float(i) < float(price) and abs(float(i) - float(baseprice)) < 500:
-                    price = i
-            return price
-        else:
-            return '未抓取到数据'
+    def spider(self):
+        # print(threading.current_thread().name)
+        while True:
+            Lock.acquire()
+            # print(len(self.price_id_list))
+            if len(self.price_id_list) > 0:
+                price_id = self.price_id_list.pop(0)
+                Lock.release()
+                self.headers['user-agent'] = self.get_user_agent()
+                try:
+                    result = requests.get('https:' + price_id[1], headers=self.headers, timeout=5)  # 获取商品详情页
+                except:
+                    self.re_price_id_list.append(price_id)
+                    continue
+                price_info = re.findall(r'TShop.Setup\(([\S\s]*?)\);', result.text)  # 提取出价格配置信息
+                # print(price_info[0])
+                if len(price_info) == 0:
+                    price_info = re.findall(r'skuMap[ ]*?:[\w\W]*?{([\s\S]*?)\);', result.text)
+                if len(price_info) > 0:
+                    prices = re.findall(r'"price":"(.*?)"', price_info[0])
+                    price = price_id[2]
+                    for i in prices:
+                        if float(i) < float(price) and abs(float(i) - float(price_id[2])) < 500:
+                            price = i
+                    self.price.append([price_id[0], price, datetime.datetime.now()])
+                else:
+                    self.re_price_id_list.append(price_id)
+                # time.sleep(random.randint(0,10))
+            else:
+                Lock.release()
+                break
 
     def get_proxiex(self, n):
         if n == 0:
@@ -136,6 +160,10 @@ class price_spider(object):
         history_price.price = price
         history_price.insert_time = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
         history_price.save()
+
+    def save_all(self):
+        history_price = commodity_history_price()
+        history_price.save_all(self.price)
 
     def get_user_agent(self):
         return random.choice(self.user_agent)

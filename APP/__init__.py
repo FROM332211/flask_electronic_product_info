@@ -13,4 +13,5 @@ def creat_app(env):
     app.config.from_object(envs.get(env))
     init_ext(app)
     init_view(app)
+    app.app_context().push()
     return app

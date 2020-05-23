@@ -81,3 +81,10 @@ class commodity_history_price(db.Model):
     def save(self):
         db.session.add(self)
         db.session.commit()
+
+    def save_all(self, price_list):
+        price = []
+        for i in price_list:
+            price.append(commodity_history_price(commodity_price_id=i[0], price=i[1], insert_time=i[2]))
+        db.session.add_all(price)
+        db.session.commit()

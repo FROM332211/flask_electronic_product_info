@@ -97,7 +97,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>价格：{{ price.price }}</td>
+                                <td>价格：<a href="{{ url_for('first.price_trend',commodity_name=price.commodity_name,price_id=price.price_id)}}">{{ price.price }}</a></td>
                                 {% if price.collection_flag == 0 %}
                                 <td><button type="button" class="btn btn-primary" data-loading-text="Loading..." onclick="colect('{{ price.price_id }}')" id="{{ price.price_id }}">收藏</button></td>
                                 {% else %}

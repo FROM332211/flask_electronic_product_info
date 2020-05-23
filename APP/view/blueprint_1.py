@@ -7,12 +7,12 @@ from wtforms import StringField, SelectField, SubmitField
 from wtforms.validators import DataRequired, Length
 
 from APP.ext import db
-from APP.model import User, commodity_review_info, commodity_price_info, user_collection
+from APP.model import User, commodity_review_info, commodity_price_info, user_collection, commodity_history_price
 from APP.model import commodity_base_info
 from APP.spider.commodity_info_spider import base_infoz
 from APP.spider.tb_search_spider import taobao_spider
 from APP.spider.zhihu_spider import zhihu_review_spider
-from APP.spider.histiory_price_spider import  price_spider
+from APP.spider.histiory_price_spider import price_spider
 
 first = Blueprint('first', __name__)
 
@@ -268,18 +268,17 @@ def commodity_data(commodity_type, commodity_name):
         price_infos = commodity_price.query.filter(commodity_price_info.commodity_type == commodity_type,
                                                    commodity_price_info.commodity_name == commodity_name
                                                    ).order_by(-commodity_price_info.price).all()
-        price_id = 0
         # print(price_infos)
         for price_info in price_infos:
             # print(vars(price_info[0]))
             # print(vars(price_info[1]))
-            price_id += 1
             if price_info.id in collection_priceid_list:
                 price_list.append({'price': price_info.price,
                                    'price_title': price_info.price_title,
                                    'price_url': price_info.price_url,
                                    'price_img_path': price_info.price_img_path,
                                    'price_id': price_info.id,
+                                   'commodity_name': commodity_name,
                                    'collection_flag': 1})
             else:
                 price_list.append({'price': price_info.price,
@@ -287,19 +286,19 @@ def commodity_data(commodity_type, commodity_name):
                                    'price_url': price_info.price_url,
                                    'price_img_path': price_info.price_img_path,
                                    'price_id': price_info.id,
+                                   'commodity_name': commodity_name,
                                    'collection_flag': 0})
     else:
         price_infos = commodity_price.query.filter(commodity_price_info.commodity_type == commodity_type,
                                                    commodity_price_info.commodity_name == commodity_name).order_by(
             -commodity_price_info.price).all()
-        price_id = 0
         for price_info in price_infos:
-            price_id += 1
             price_list.append({'price': price_info.price,
                                'price_title': price_info.price_title,
                                'price_url': price_info.price_url,
                                'price_img_path': price_info.price_img_path,
                                'price_id': price_info.id,
+                               'commodity_name': commodity_name,
                                'collection_flag': 0})
 
     review_infos = commodity_review.query.filter(commodity_review_info.commodity_type == commodity_type,
@@ -488,18 +487,17 @@ def Contrast():
         price_infos = commodity_price.query.filter(commodity_price_info.commodity_type == commodity_type,
                                                    commodity_price_info.commodity_name == commodity_name
                                                    ).order_by(-commodity_price_info.price).all()
-        price_id = 0
         # print(price_infos)
         for price_info in price_infos:
             # print(vars(price_info[0]))
             # print(vars(price_info[1]))
-            price_id += 1
             if price_info.id in collection_priceid_list:
                 price_list.append({'price': price_info.price,
                                    'price_title': price_info.price_title,
                                    'price_url': price_info.price_url,
                                    'price_img_path': price_info.price_img_path,
                                    'price_id': price_info.id,
+                                   'commodity_name': price_info.commodity_name,
                                    'collection_flag': 1})
             else:
                 price_list.append({'price': price_info.price,
@@ -507,6 +505,7 @@ def Contrast():
                                    'price_url': price_info.price_url,
                                    'price_img_path': price_info.price_img_path,
                                    'price_id': price_info.id,
+                                   'commodity_name': price_info.commodity_name,
                                    'collection_flag': 0})
     else:
         price_infos = commodity_price.query.filter(commodity_price_info.commodity_type == commodity_type,
@@ -520,6 +519,7 @@ def Contrast():
                                'price_url': price_info.price_url,
                                'price_img_path': price_info.price_img_path,
                                'price_id': price_info.id,
+                               'commodity_name': price_info.commodity_name,
                                'collection_flag': 0})
 
     review_infos = commodity_review.query.filter(commodity_review_info.commodity_type == commodity_type,
@@ -571,9 +571,16 @@ def collection():
         return abort(404)
 
 
-@first.route('/price_trend/')
-def price_trend():
-    return render_template('price_trend.html')
+@first.route('/price_trend/<string:commodity_name>/<string:price_id>', methods=['GET', 'POST'])
+def price_trend(commodity_name, price_id):
+    history_price_info = commodity_history_price()
+    price_data_list = history_price_info.query.filter(commodity_history_price.commodity_price_id == price_id) \
+        .order_by(-commodity_history_price.insert_time).limit(7).all()
+    price = [x.price for x in price_data_list]
+    data = [str(x.insert_time) for x in price_data_list]
+    print(price)
+    print(data)
+    return render_template('price_trend.html', data=data, price=price)
 
 
 @first.route('/init_base_info/')
